@@ -1,3 +1,4 @@
+// app/(tabs)/Order.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -21,7 +22,6 @@ interface ReservationItem {
   name: string;
   phone: string;
   reservationDate: string;
-  isPaid?: boolean; // Tambahkan properti ini untuk melacak status pembayaran
 }
 
 export default function Order() {
@@ -50,18 +50,7 @@ export default function Order() {
         { text: "Batal", style: "cancel" },
         {
           text: "Bayar",
-          onPress: () => {
-            // Ubah status isPaid menjadi true
-            const updatedReservations = reservations.map((reservation) => {
-              if (reservation.restaurantId === item.restaurantId) {
-                return { ...reservation, isPaid: true }; // Update isPaid
-              }
-              return reservation;
-            });
-            setReservations(updatedReservations);
-            AsyncStorage.setItem("reservation", JSON.stringify(updatedReservations));
-            Alert.alert("Sukses", "Pembayaran dikonfirmasi");
-          },
+          onPress: () => console.log("Pembayaran dikonfirmasi"),
         },
       ]
     );
@@ -110,28 +99,22 @@ export default function Order() {
                 {new Date(item.reservationDate).toLocaleDateString()}
               </ThemedText>
               <View style={styles.buttonContainer}>
-                {item.isPaid ? ( // Cek status isPaid
-                  <ThemedText style={styles.paidText}>Pembayaran Dikonfirmasi</ThemedText>
-                ) : (
-                  <>
-                    <TouchableOpacity
-                      style={styles.payButton}
-                      onPress={() => handlePayment(item)}
-                    >
-                      <Ionicons name="card" size={24} color="#fff" />
-                      <ThemedText style={styles.payButtonText}>Bayar</ThemedText>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => handleDeleteReservation(item.restaurantId)}
-                    >
-                      <Ionicons name="trash" size={24} color="#fff" />
-                      <ThemedText style={styles.deleteButtonText}>
-                        Hapus Reservasi
-                      </ThemedText>
-                    </TouchableOpacity>
-                  </>
-                )}
+                <TouchableOpacity
+                  style={styles.payButton}
+                  onPress={() => handlePayment(item)}
+                >
+                  <Ionicons name="card" size={24} color="#fff" />
+                  <ThemedText style={styles.payButtonText}>Bayar</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeleteReservation(item.restaurantId)}
+                >
+                  <Ionicons name="trash" size={24} color="#fff" />
+                  <ThemedText style={styles.deleteButtonText}>
+                    Hapus Reservasi
+                  </ThemedText>
+                </TouchableOpacity>
               </View>
             </View>
           ))
@@ -201,10 +184,5 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginTop: 20,
-  },
-  paidText: {
-    color: "#4CAF50",
-    fontWeight: "bold",
-    alignSelf: "center",
   },
 });

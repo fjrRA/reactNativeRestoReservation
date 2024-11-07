@@ -194,13 +194,15 @@ export default function ProductScreen() {
                 source={{ uri: item.imageUrl }}
                 style={styles.flashSaleImage}
               />
-              <ThemedText type="subtitle" style={styles.restaurantName}>
-                {item.name}
-              </ThemedText>
-              <View style={styles.discountContainer}>
-                <ThemedText style={styles.discountText}>
-                  Diskon {item.discount}
+              <View style={styles.productNameContainer}>
+                <ThemedText type="subtitle" style={styles.restaurantName}>
+                  {item.name}
                 </ThemedText>
+                <View style={styles.discountContainer}>
+                  <ThemedText style={styles.discountText}>
+                    Diskon {item.discount}
+                  </ThemedText>
+                </View>
               </View>
             </TouchableOpacity>
           ))}
@@ -259,11 +261,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#001f3f",
+    backgroundColor: "#fff",
   },
   container: {
     flex: 1,
-    backgroundColor: "#001f3f",
+    backgroundColor: "#fff",
   },
   scrollContainer: {
     flex: 1,
@@ -278,7 +280,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   sectionTitle: {
-    color: "#ffffff",
+    color: "#000",
     paddingHorizontal: 16,
     fontSize: 20,
     marginBottom: 12,
@@ -297,55 +299,62 @@ const styles = StyleSheet.create({
   },
   flashSaleRow: {
     flexDirection: "row",
-    paddingHorizontal: 16,
     marginBottom: 24,
+    marginHorizontal: 8,
   },
   flashSaleItem: {
     width: (screenWidth - 48) / 2,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#ffffff",
     borderRadius: 8,
-    padding: 10,
-    alignItems: "center",
-    marginRight: 16,
-    elevation: 3,
-    shadowColor: "#000",
+    marginBottom: 16,
+    marginHorizontal: 8,
+    paddingBottom: 8,
+    shadowColor: "#1A1A19",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   flashSaleImage: {
     width: "100%",
     height: 120,
-    borderRadius: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
     marginBottom: 8,
     resizeMode: "cover",
   },
-  discountContainer: {
-    backgroundColor: "#FF4B4B",
+  productNameContainer: {
     paddingHorizontal: 8,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    marginTop: 4,
+  },
+  discountContainer: {
+    backgroundColor: "#1A1A19",
     paddingVertical: 4,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
     marginTop: 4,
   },
   discountText: {
-    color: "#ffffff",
-    fontWeight: "bold",
+    color: "#fff",
+    fontSize: 14,
   },
   productList: {
     paddingHorizontal: 16,
   },
   productItem: {
     flexDirection: "row",
-    backgroundColor: "#f0f0f0",
     borderRadius: 8,
     padding: 10,
     marginBottom: 16,
     alignItems: "center",
-    elevation: 2,
+    backgroundColor: "#fff",
+    elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   productImage: {
     width: 80,

@@ -3,11 +3,11 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Image,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
@@ -16,9 +16,19 @@ const ProfileScreen = () => {
   const [email, setEmail] = useState("john.doe@example.com");
   const [phone, setPhone] = useState("08123456789");
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false); // State untuk menyimpan status saving
 
-  const handleSave = () => {
-    Alert.alert("Success", "Your profile has been updated.");
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Simulasi penyimpanan data (misalnya ke server atau async storage)
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulasi waktu penyimpanan
+      Alert.alert("Success", "Your profile has been updated.");
+    } catch (error) {
+      Alert.alert("Error", "There was an error saving your profile.");
+    } finally {
+      setIsSaving(false); // Reset saving status
+    }
   };
 
   const pickImage = async () => {
@@ -87,8 +97,16 @@ const ProfileScreen = () => {
           keyboardType="phone-pad"
         />
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={handleSave}
+          disabled={isSaving} // Disable button saat sedang menyimpan
+        >
+          {isSaving ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.saveButtonText}>Save</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
