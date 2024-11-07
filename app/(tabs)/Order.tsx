@@ -1,158 +1,143 @@
-// app/(tabs)/Order.tsx
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   Alert,
-} from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ReservationItem {
   restaurantId: string;
   restaurantName: string;
   location: string;
-  variant: 'regular' | 'vip';
-  tableCount: number;
-  status: 'pending' | 'paid';
-  date: string;
+  selectedMenu: string; // Menyimpan string dari JSON menu yang dipilih
+  totalPrice: string;
+  isFlashSale?: string;
+  name: string;
+  phone: string;
+  reservationDate: string;
+  isPaid?: boolean; // Tambahkan properti ini untuk melacak status pembayaran
 }
 
 export default function Order() {
-  // Contoh data reservasi (dalam implementasi nyata bisa dari state management/API)
-  const reservations: ReservationItem[] = [
-    {
-      restaurantId: '1',
-      restaurantName: 'Resto A',
-      location: 'Jl. Kebon Jeruk',
-      variant: 'vip',
-      tableCount: 3,
-      status: 'pending',
-      date: new Date().toLocaleDateString(),
-    },
-    {
-      restaurantId: '2',
-      restaurantName: 'Resto B',
-      location: 'Jl. Asia Afrika',
-      variant: 'regular',
-      tableCount: 2,
-      status: 'paid',
-      date: new Date().toLocaleDateString(),
-    },
-  ];
+  const [reservations, setReservations] = useState<ReservationItem[]>([]);
+
+  useEffect(() => {
+    const loadReservations = async () => {
+      try {
+        const reservationData = await AsyncStorage.getItem("reservation");
+        if (reservationData) {
+          setReservations([JSON.parse(reservationData)]);
+        }
+      } catch (error) {
+        Alert.alert("Error", "Gagal memuat data reservasi");
+      }
+    };
+
+    loadReservations();
+  }, []);
 
   const handlePayment = (item: ReservationItem) => {
     Alert.alert(
-      'Konfirmasi Pembayaran',
+      "Konfirmasi Pembayaran",
       `Apakah Anda yakin ingin melakukan pembayaran untuk reservasi di ${item.restaurantName}?`,
       [
-        { text: 'Batal', style: 'cancel' },
+        { text: "Batal", style: "cancel" },
         {
-          text: 'Bayar',
+          text: "Bayar",
           onPress: () => {
-            Alert.alert('Sukses', 'Pembayaran berhasil!');
+            // Ubah status isPaid menjadi true
+            const updatedReservations = reservations.map((reservation) => {
+              if (reservation.restaurantId === item.restaurantId) {
+                return { ...reservation, isPaid: true }; // Update isPaid
+              }
+              return reservation;
+            });
+            setReservations(updatedReservations);
+            AsyncStorage.setItem("reservation", JSON.stringify(updatedReservations));
+            Alert.alert("Sukses", "Pembayaran dikonfirmasi");
           },
         },
       ]
     );
   };
 
-  const handleCancel = (item: ReservationItem) => {
+  const handleDeleteReservation = async (restaurantId: string) => {
     Alert.alert(
-      'Konfirmasi Pembatalan',
-      `Apakah Anda yakin ingin membatalkan reservasi di ${item.restaurantName}?`,
+      "Konfirmasi Hapus Reservasi",
+      "Apakah Anda yakin ingin menghapus reservasi ini?",
       [
-        { text: 'Tidak', style: 'cancel' },
+        { text: "Batal", style: "cancel" },
         {
-          text: 'Ya, Batalkan',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('Sukses', 'Reservasi dibatalkan!');
+          text: "Hapus",
+          style: "destructive",
+          onPress: async () => {
+            const updatedReservations = reservations.filter(
+              (reservation) => reservation.restaurantId !== restaurantId
+            );
+            setReservations(updatedReservations);
+            await AsyncStorage.setItem(
+              "reservation",
+              JSON.stringify(updatedReservations)
+            );
+            Alert.alert("Sukses", "Reservasi telah dihapus");
           },
         },
       ]
     );
-  };
-
-  const getStatusColor = (status: string) => {
-    return status === 'paid' ? '#4CAF50' : '#FFA500';
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
-        <View style={styles.header}>
-          <ThemedText type="title" style={styles.title}>
-            Daftar Reservasi
-          </ThemedText>
-        </View>
-
-        {reservations.map((item, index) => (
-          <View key={index} style={styles.reservationCard}>
-            <View style={styles.cardHeader}>
+      <ScrollView>
+        {reservations.length > 0 ? (
+          reservations.map((item, index) => (
+            <View key={index} style={styles.reservationItem}>
               <ThemedText style={styles.restaurantName}>
                 {item.restaurantName}
               </ThemedText>
-              <View style={[
-                styles.statusBadge,
-                { backgroundColor: getStatusColor(item.status) }
-              ]}>
-                <ThemedText style={styles.statusText}>
-                  {item.status === 'paid' ? 'Sudah Bayar' : 'Belum Bayar'}
-                </ThemedText>
+              <ThemedText>Nama: {item.name}</ThemedText>
+              <ThemedText>Telepon: {item.phone}</ThemedText>
+              <ThemedText>Lokasi: {item.location}</ThemedText>
+              <ThemedText>Total Harga: Rp {item.totalPrice}</ThemedText>
+              <ThemedText>
+                Tanggal Reservasi:{" "}
+                {new Date(item.reservationDate).toLocaleDateString()}
+              </ThemedText>
+              <View style={styles.buttonContainer}>
+                {item.isPaid ? ( // Cek status isPaid
+                  <ThemedText style={styles.paidText}>Pembayaran Dikonfirmasi</ThemedText>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={styles.payButton}
+                      onPress={() => handlePayment(item)}
+                    >
+                      <Ionicons name="card" size={24} color="#fff" />
+                      <ThemedText style={styles.payButtonText}>Bayar</ThemedText>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDeleteReservation(item.restaurantId)}
+                    >
+                      <Ionicons name="trash" size={24} color="#fff" />
+                      <ThemedText style={styles.deleteButtonText}>
+                        Hapus Reservasi
+                      </ThemedText>
+                    </TouchableOpacity>
+                  </>
+                )}
               </View>
             </View>
-
-            <View style={styles.cardContent}>
-              <View style={styles.infoRow}>
-                <Ionicons name="location-outline" size={16} color="#888" />
-                <ThemedText style={styles.infoText}>{item.location}</ThemedText>
-              </View>
-
-              <View style={styles.infoRow}>
-                <Ionicons name="calendar-outline" size={16} color="#888" />
-                <ThemedText style={styles.infoText}>{item.date}</ThemedText>
-              </View>
-
-              <View style={styles.infoRow}>
-                <Ionicons name="star-outline" size={16} color="#888" />
-                <ThemedText style={styles.infoText}>
-                  Varian: {item.variant.toUpperCase()}
-                </ThemedText>
-              </View>
-
-              <View style={styles.infoRow}>
-                <Ionicons name="restaurant-outline" size={16} color="#888" />
-                <ThemedText style={styles.infoText}>
-                  Jumlah Meja: {item.tableCount}
-                </ThemedText>
-              </View>
-            </View>
-
-            <View style={styles.cardActions}>
-              {item.status === 'pending' && (
-                <>
-                  <TouchableOpacity
-                    style={styles.payButton}
-                    onPress={() => handlePayment(item)}
-                  >
-                    <ThemedText style={styles.buttonText}>Bayar</ThemedText>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => handleCancel(item)}
-                  >
-                    <ThemedText style={styles.buttonText}>Batalkan</ThemedText>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
-          </View>
-        ))}
+          ))
+        ) : (
+          <ThemedText style={styles.emptyText}>Tidak ada reservasi.</ThemedText>
+        )}
       </ScrollView>
     </ThemedView>
   );
@@ -161,85 +146,65 @@ export default function Order() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#001f3f',
-  },
-  scrollContainer: {
-    flex: 1,
-  },
-  header: {
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 8,
-    color: '#fff',
-  },
-  reservationCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    margin: 16,
+  reservationItem: {
+    backgroundColor: "#fff",
     padding: 16,
-    elevation: 3,
-    shadowColor: '#000',
+    borderRadius: 8,
+    marginBottom: 16,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    elevation: 2,
   },
   restaurantName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    marginBottom: 4,
   },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  cardContent: {
-    marginBottom: 16,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  infoText: {
-    marginLeft: 8,
-    color: '#666',
-    fontSize: 14,
-  },
-  cardActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 12,
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
   },
   payButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 8,
   },
-  cancelButton: {
-    backgroundColor: '#FF4B4B',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
+  payButtonText: {
+    color: "#fff",
+    marginLeft: 8,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  deleteButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f44336",
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+  },
+  deleteButtonText: {
+    color: "#fff",
+    marginLeft: 8,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  paidText: {
+    color: "#4CAF50",
+    fontWeight: "bold",
+    alignSelf: "center",
   },
 });

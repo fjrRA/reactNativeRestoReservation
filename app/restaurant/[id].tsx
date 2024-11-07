@@ -1,5 +1,5 @@
 // app/restaurant/[id].tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -8,12 +8,15 @@ import {
   Dimensions,
   TouchableOpacity,
   Alert,
+  TextInput,
   Modal,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -47,6 +50,10 @@ export default function RestaurantDetail() {
   const { id, isFlashSale } = useLocalSearchParams();
   const [selectedMenu, setSelectedMenu] = useState<OrderItem[]>([]);
   const [showReservationModal, setShowReservationModal] = useState(false);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [reservationDate, setReservationDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Sample data (dalam implementasi nyata, data ini bisa diambil dari API)
   const restaurants: { [key: string]: Restaurant } = {
@@ -64,16 +71,16 @@ export default function RestaurantDetail() {
       menu: [
         {
           id: 1,
-          name: "Nasi Goreng Special",
+          name: "Paket VIP",
           price: 35000,
-          description: "Nasi goreng dengan telur, ayam, dan sayuran",
+          description: "Lorem ipsum dolor sit amet",
           imageUrl: "https://example.com/nasgor.jpg"
         },
         {
           id: 2,
-          name: "Mie Goreng Special",
+          name: "Paket Reguler",
           price: 30000,
-          description: "Mie goreng dengan telur dan sayuran",
+          description: "Lorem ipsum dolor sit amet",
           imageUrl: "https://example.com/miegoreng.jpg"
         }
       ]
@@ -118,15 +125,40 @@ export default function RestaurantDetail() {
     }, 0);
   };
 
-  const handleReservation = () => {
+   const handleReservation = async () => {
+    if (!name || !phone) {
+      Alert.alert('Peringatan', 'Silakan isi nama dan nomor telepon');
+      return;
+    }
     if (selectedMenu.length === 0) {
       Alert.alert('Peringatan', 'Silakan pilih menu terlebih dahulu');
       return;
     }
+    const reservationData = {
+      restaurantId: id,
+      restaurantName: restaurant.name,
+      location: restaurant.location,
+      selectedMenu: JSON.stringify(selectedMenu),
+      totalPrice: calculateTotal().toString(),
+      isFlashSale,
+      name,
+      phone,
+      reservationDate: reservationDate.toISOString(),
+    };
+
+    try {
+      await AsyncStorage.setItem('reservation', JSON.stringify(reservationData));
+      router.push({
+        pathname: "/(tabs)/Order",
+        params: reservationData,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Gagal menyimpan reservasi');
+    }
 
     // Perbaikan format pathname
     router.push({
-      pathname: "../(tabs)/Order", // Ubah menjadi huruf kecil
+      pathname: "/(tabs)/Order", // Ubah menjadi huruf kecil
       params: {
         restaurantId: id,
         restaurantName: restaurant.name,
@@ -209,7 +241,7 @@ export default function RestaurantDetail() {
           {/* Menu Section */}
           <View style={styles.menuSection}>
             <ThemedText type="title" style={styles.menuTitle}>
-              Menu
+              Kategori
             </ThemedText>
 
             {restaurant.menu.map((item) => {
@@ -275,6 +307,37 @@ export default function RestaurantDetail() {
               Rp {calculateTotal().toLocaleString()}
             </ThemedText>
           </View>
+
+          <TextInput
+          style={styles.input}
+          placeholder="Nama"
+          value={name}
+          onChangeText={setName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Nomor Telepon"
+          keyboardType="phone-pad"
+          value={phone}
+          onChangeText={setPhone}
+        />
+        <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+          <ThemedText style={styles.datePickerText}>
+            Waktu Reservasi: {reservationDate.toLocaleDateString()}
+          </ThemedText>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={reservationDate}
+            mode="date"
+            display="default"
+            onChange={(event, date) => {
+              setShowDatePicker(false);
+              if (date) setReservationDate(date);
+            }}
+          />
+        )}
+
           <TouchableOpacity
             style={styles.reservationButton}
             onPress={handleReservation}
@@ -450,31 +513,47 @@ const styles = StyleSheet.create({
   bottomBar: {
     backgroundColor: '#fff',
     padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     borderTopWidth: 1,
     borderTopColor: '#eee',
-    paddingBottom: 34, // Add extra padding for iPhone X and later
   },
-  totalContainer: {
-    flex: 1,
+  totalContainer: { 
+    marginBottom: 16 
   },
-  totalText: {
-    fontSize: 14,
-    color: '#666',
+  totalText: { 
+    fontSize: 14, 
+    color: '#666' 
   },
-  totalPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  totalPrice: { 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    color: '#333' 
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
     color: '#333',
+  },
+  datePickerText: { 
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16, 
+    color: '#333', 
+    marginBottom: 24 
   },
   reservationButton: {
     backgroundColor: '#4CAF50',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
-    marginLeft: 16,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   reservationButtonText: {
     color: '#fff',
