@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
@@ -55,6 +56,7 @@ const ProfileScreen = () => {
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.form}>
         <Text style={styles.title}>Profile</Text>
@@ -110,6 +112,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </ScrollView>
   );
 };
 
