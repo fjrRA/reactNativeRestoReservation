@@ -12,17 +12,64 @@ import {
   Text,
   ImageBackground,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Ionicons } from "@expo/vector-icons"; // Import ikon untuk wishlist
-import { useNavigation } from "@react-navigation/native"; // Import useNavigation //tambahan navigasi
-import { RootStackParamList } from "./RootStackParamList"; // Sesuaikan dengan path RootStackParamList //tambahan navigasi
-import { NativeStackNavigationProp } from "@react-navigation/native-stack"; //tambahan navigasi
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "./RootStackParamList";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">; //tambahan navigasi
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
 const screenWidth = Dimensions.get("window").width;
+
+// Custom Hook untuk Infinite Scroll
+const useInfiniteScroll = <T,>(items: T[], itemsPerPage: number = 4) => {
+  const [displayedItems, setDisplayedItems] = useState<T[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  useEffect(() => {
+    loadInitialItems();
+  }, [items]);
+
+  const loadInitialItems = () => {
+    const initialItems = items.slice(0, itemsPerPage);
+    setDisplayedItems(initialItems);
+    setHasMore(items.length > itemsPerPage);
+  };
+
+  const loadMoreItems = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const startIndex = page * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const newItems = items.slice(startIndex, endIndex);
+
+    setDisplayedItems((prev) => [...prev, ...newItems]);
+    setPage((prev) => prev + 1);
+    setHasMore(endIndex < items.length);
+    setLoading(false);
+  };
+
+  return { displayedItems, loading, hasMore, loadMoreItems };
+};
+
+// Modifikasi pada bagian LoadingIndicator component
+const LoadingIndicator = () => (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator size="large" color="#4CAF50" />
+    <View style={styles.loadingBackground}>
+      <ThemedText style={styles.loadingText}>Memuat...</ThemedText>
+    </View>
+  </View>
+);
 
 export default function Pesanan() {
   const [flashSales, setFlashSales] = useState([
@@ -61,6 +108,7 @@ export default function Pesanan() {
       imageUrl:
         "https://i.pinimg.com/564x/6a/25/28/6a25280d93f8ed70c397020fa3048c8c.jpg",
     },
+    // ... other flash sales
   ]);
 
   const [bestProducts, setBestProducts] = useState([
@@ -112,18 +160,35 @@ export default function Pesanan() {
         "https://i.pinimg.com/564x/17/12/7e/17127e44905ace69adb06e6fa125f3ad.jpg",
       isWishlisted: false,
     },
+    // ... other products
   ]);
 
   const [countdown, setCountdown] = useState(3600);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredBestProducts, setFilteredBestProducts] =
     useState(bestProducts);
-  const navigation = useNavigation<NavigationProp>(); //tambahan navigasi
+  const navigation = useNavigation<NavigationProp>();
   const fadeAnimFlashSale = useRef(new Animated.Value(0)).current;
   const fadeAnimBestProducts = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Infinite scroll hooks
+  const {
+    displayedItems: displayedFlashSales,
+    loading: loadingFlashSales,
+    hasMore: hasMoreFlashSales,
+    loadMoreItems: loadMoreFlashSales,
+  } = useInfiniteScroll(flashSales, 2);
+
+  const {
+    displayedItems: displayedProducts,
+    loading: loadingProducts,
+    hasMore: hasMoreProducts,
+    loadMoreItems: loadMoreProducts,
+  } = useInfiniteScroll(filteredBestProducts, 4);
+
+  // Existing useEffects
   useEffect(() => {
     Animated.timing(fadeAnimFlashSale, {
       toValue: 1,
@@ -169,6 +234,19 @@ export default function Pesanan() {
     setFilteredBestProducts(filteredData);
   }, [searchQuery, bestProducts]);
 
+  // Handlers
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 20;
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom;
+
+    if (isCloseToBottom) {
+      loadMoreProducts();
+    }
+  };
+
   const formatTime = (seconds: number): string => {
     if (typeof seconds !== "number" || seconds < 0) {
       seconds = 0;
@@ -204,13 +282,17 @@ export default function Pesanan() {
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView style={styles.scrollContainer}>
+      <ScrollView
+        style={styles.scrollContainer}
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
+      >
         <TextInput
           style={styles.searchInput}
           placeholder="Cari produk..."
           placeholderTextColor="#888"
           value={searchQuery}
-          onChangeText={(text) => setSearchQuery(text)} // Update searchQuery setiap kali teks berubah
+          onChangeText={(text) => setSearchQuery(text)}
         />
 
         <View style={styles.flashSaleHeader}>
@@ -260,7 +342,7 @@ export default function Pesanan() {
 
         <Animated.View style={{ opacity: fadeAnimBestProducts }}>
           <View style={styles.productGrid}>
-            {filteredBestProducts.map((product) => (
+            {displayedProducts.map((product) => (
               <TouchableOpacity
                 key={product.id}
                 style={styles.productItem}
@@ -297,6 +379,22 @@ export default function Pesanan() {
               </TouchableOpacity>
             ))}
           </View>
+
+          {/* Loading Indicator for Products */}
+          {loadingProducts && (
+            <View style={styles.productsLoadingContainer}>
+              <LoadingIndicator />
+            </View>
+          )}
+
+          {/* End Message */}
+          {!hasMoreProducts && displayedProducts.length > 0 && (
+            <View style={styles.endMessageContainer}>
+              <ThemedText style={styles.endMessage}>
+                Tidak ada produk lagi
+              </ThemedText>
+            </View>
+          )}
         </Animated.View>
       </ScrollView>
     </ThemedView>
@@ -398,28 +496,75 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 8,
     resizeMode: "cover",
   },
-    productNameContainer: {
-    paddingHorizontal: 8,
-    marginVertical: 8,
+  productNameContainer: {
+    paddingLeft: 8,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    marginTop: 4,
   },
   productName: {
     fontSize: 16,
     fontWeight: "bold",
-    height: 48
-  },
-  locationContainer: {
-    color: "#888",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginRight:16
-  },
-  locationIcon: {
-    marginRight: 2,
+    height: 48,
   },
   locationText: {
     color: "#888",
     fontSize: 12,
   },
+  loadingContainer: {
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+  },
+  loadingBackground: {
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  endMessage: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "#666",
+  },
+  locationIcon: {
+    marginRight: 2,
+  },
+  locationContainer: {
+    color: "#888",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginRight: 16,
+  },
+  flashSaleLoadingContainer: {
+    width: screenWidth - 32,
+    height: 200,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 8,
+  },
+  productsLoadingContainer: {
+    padding: 20,
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 8,
+    margin: 16,
+  },
+  endMessageContainer: {
+    padding: 16,
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 8,
+    margin: 16,
+  },
+
   wishlistIcon: {
     position: "absolute",
     top: 8,

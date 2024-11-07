@@ -10,6 +10,7 @@ import {
   Text,
   TextInput,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -178,15 +179,13 @@ export default function ProductScreen() {
           <Text style={styles.countdownText}>{formatTime(countdown)}</Text>
         </View>
 
-        {/* Flash Sale List */}
-        <ScrollView
+        {/* Flash Sale List dengan FlatList */}
+        <FlatList
           horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.flashSaleRow}
-        >
-          {flashSales.map((item) => (
+          data={flashSales}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
             <TouchableOpacity
-              key={item.id}
               style={styles.flashSaleItem}
               onPress={() => handleRestaurantPress(item.id)}
             >
@@ -199,20 +198,16 @@ export default function ProductScreen() {
                   {item.name}
                 </ThemedText>
                 <View style={styles.discountContainer}>
-                  <Ionicons
-                      name="ticket-outline"
-                      size={16}
-                      color="#4CAF50"
-                      style={styles.locationIcon}
-                    />
                   <ThemedText style={styles.discountText}>
                     Diskon {item.discount}
                   </ThemedText>
                 </View>
               </View>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          )}
+          contentContainerStyle={styles.flashSaleRow}
+          showsHorizontalScrollIndicator={false}
+        />
 
         {/* Regular Restaurant Section */}
         <ThemedText type="title" style={styles.sectionTitle}>
