@@ -66,48 +66,48 @@ export default function Pesanan() {
   const [bestProducts, setBestProducts] = useState([
     {
       id: 1,
-      name: "Produk A",
-      location: "Purwokerto",
+      name: "Djago Jowo Purwokerto",
+      location: "Jl. Gelora Indah I",
       imageUrl:
         "https://img.freepik.com/free-photo/restaurant-hall-with-lots-table_140725-6309.jpg",
       isWishlisted: false,
     },
     {
       id: 2,
-      name: "Produk B",
-      location: "Purwokerto",
+      name: "RM. Cahaya Mas Purwokerto",
+      location: "Jl. Overste Isdiman No.10",
       imageUrl:
         "https://i.pinimg.com/564x/64/b5/56/64b55627b8c96d457fd61f3b590c2ae5.jpg",
       isWishlisted: false,
     },
     {
       id: 3,
-      name: "Produk C",
-      location: "Purwokerto",
+      name: "Gubug Makan Mang Engking",
+      location: "Jl. Profesor DR. HR Boenyamin",
       imageUrl:
         "https://i.pinimg.com/564x/38/80/fe/3880fe14bf47cad9f3f646a5571a65d2.jpg",
       isWishlisted: false,
     },
     {
       id: 4,
-      name: "Produk D",
-      location: "Purwokerto",
+      name: "Table Nine Resto",
+      location: "Jl. Profesor DR. HR Bunyamin",
       imageUrl:
         "https://i.pinimg.com/564x/f0/35/29/f035298d2900ff12c297836954a659a5.jpg",
       isWishlisted: false,
     },
     {
       id: 5,
-      name: "Produk E",
-      location: "Purwokerto",
+      name: "Lombok Idjo LEK JON",
+      location: "Jl. Gelora Indah 2 No.7",
       imageUrl:
         "https://i.pinimg.com/564x/6a/25/28/6a25280d93f8ed70c397020fa3048c8c.jpg",
       isWishlisted: false,
     },
     {
       id: 6,
-      name: "Produk F",
-      location: "Purwokerto",
+      name: "RM. Ampera Banyumasan",
+      location: "Jl. Pierre Tendean No.41",
       imageUrl:
         "https://i.pinimg.com/564x/17/12/7e/17127e44905ace69adb06e6fa125f3ad.jpg",
       isWishlisted: false,
@@ -396,31 +396,29 @@ const styles = StyleSheet.create({
     height: 120,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    marginBottom: 8,
     resizeMode: "cover",
   },
+    productNameContainer: {
+    paddingHorizontal: 8,
+    marginVertical: 8,
+  },
   productName: {
-    marginTop: 8,
     fontSize: 16,
     fontWeight: "bold",
-  },
-  productNameContainer: {
-    paddingLeft: 8,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    marginTop: 4,
+    height: 48
   },
   locationContainer: {
     color: "#888",
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
+    marginRight:16
   },
   locationIcon: {
-    marginRight: 4,
+    marginRight: 2,
   },
   locationText: {
     color: "#888",
-    fontSize: 14,
+    fontSize: 12,
   },
   wishlistIcon: {
     position: "absolute",

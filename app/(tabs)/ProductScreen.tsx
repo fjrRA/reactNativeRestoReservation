@@ -199,6 +199,12 @@ export default function ProductScreen() {
                   {item.name}
                 </ThemedText>
                 <View style={styles.discountContainer}>
+                  <Ionicons
+                      name="ticket-outline"
+                      size={16}
+                      color="#4CAF50"
+                      style={styles.locationIcon}
+                    />
                   <ThemedText style={styles.discountText}>
                     Diskon {item.discount}
                   </ThemedText>
@@ -330,14 +336,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   discountContainer: {
-    backgroundColor: "#1A1A19",
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    marginTop: 4,
+    color: "#888",
+    flexDirection: "row",
+    alignItems: "center",
   },
   discountText: {
-    color: "#fff",
+    color: "#4CAF50",
     fontSize: 14,
   },
   productList: {
