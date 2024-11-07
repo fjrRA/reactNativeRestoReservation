@@ -1,5 +1,7 @@
 // index.tsx
 // Test GitHub
+// Test maning
+
 //zdfsdfdfsdfse
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -48,14 +50,14 @@ const useInfiniteScroll = <T,>(items: T[], itemsPerPage: number = 4) => {
     if (loading || !hasMore) return;
 
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const startIndex = page * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const newItems = items.slice(startIndex, endIndex);
 
-    setDisplayedItems(prev => [...prev, ...newItems]);
-    setPage(prev => prev + 1);
+    setDisplayedItems((prev) => [...prev, ...newItems]);
+    setPage((prev) => prev + 1);
     setHasMore(endIndex < items.length);
     setLoading(false);
   };
@@ -115,7 +117,8 @@ export default function Pesanan() {
 
   const [countdown, setCountdown] = useState(3600);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredBestProducts, setFilteredBestProducts] = useState(bestProducts);
+  const [filteredBestProducts, setFilteredBestProducts] =
+    useState(bestProducts);
   const navigation = useNavigation<NavigationProp>();
   const fadeAnimFlashSale = useRef(new Animated.Value(0)).current;
   const fadeAnimBestProducts = useRef(new Animated.Value(0)).current;
@@ -127,14 +130,14 @@ export default function Pesanan() {
     displayedItems: displayedFlashSales,
     loading: loadingFlashSales,
     hasMore: hasMoreFlashSales,
-    loadMoreItems: loadMoreFlashSales
+    loadMoreItems: loadMoreFlashSales,
   } = useInfiniteScroll(flashSales, 2);
 
   const {
     displayedItems: displayedProducts,
     loading: loadingProducts,
     hasMore: hasMoreProducts,
-    loadMoreItems: loadMoreProducts
+    loadMoreItems: loadMoreProducts,
   } = useInfiniteScroll(filteredBestProducts, 4);
 
   // Existing useEffects
@@ -187,7 +190,8 @@ export default function Pesanan() {
   const handleScroll = (event: any) => {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
     const paddingToBottom = 20;
-    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >=
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >=
       contentSize.height - paddingToBottom;
 
     if (isCloseToBottom) {
@@ -259,7 +263,10 @@ export default function Pesanan() {
             contentContainerStyle={styles.flashSaleContainer}
             onScroll={(event) => {
               const xOffset = event.nativeEvent.contentOffset.x;
-              if (xOffset >= (displayedFlashSales.length - 1) * screenWidth && hasMoreFlashSales) {
+              if (
+                xOffset >= (displayedFlashSales.length - 1) * screenWidth &&
+                hasMoreFlashSales
+              ) {
                 loadMoreFlashSales();
               }
             }}
@@ -293,7 +300,6 @@ export default function Pesanan() {
             )}
           </ScrollView>
         </Animated.View>
-
 
         <View style={styles.flashSaleHeader}>
           <ThemedText type="title" style={styles.sectionTitle}>
@@ -472,24 +478,24 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   loadingText: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
   },
   loadingBackground: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     padding: 10,
     borderRadius: 8,
     marginTop: 10,
   },
   endMessage: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   locationIcon: {
     marginRight: 4,
@@ -502,23 +508,23 @@ const styles = StyleSheet.create({
   flashSaleLoadingContainer: {
     width: screenWidth - 32,
     height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 8,
   },
   productsLoadingContainer: {
     padding: 20,
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 8,
     margin: 16,
   },
   endMessageContainer: {
     padding: 16,
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 8,
     margin: 16,
   },
