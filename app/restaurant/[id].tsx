@@ -1,5 +1,5 @@
 // app/restaurant/[id].tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   ScrollView,
@@ -10,15 +10,15 @@ import {
   Alert,
   TextInput,
   Modal,
-} from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const screenWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get("window").width;
 
 interface MenuItem {
   id: number;
@@ -50,8 +50,8 @@ export default function RestaurantDetail() {
   const { id, isFlashSale } = useLocalSearchParams();
   const [selectedMenu, setSelectedMenu] = useState<OrderItem[]>([]);
   const [showReservationModal, setShowReservationModal] = useState(false);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [reservationDate, setReservationDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -60,7 +60,8 @@ export default function RestaurantDetail() {
     "1": {
       id: 1,
       name: "Resto A",
-      imageUrl: "https://img.freepik.com/free-photo/restaurant-hall-with-lots-table_140725-6309.jpg",
+      imageUrl:
+        "https://img.freepik.com/free-photo/restaurant-hall-with-lots-table_140725-6309.jpg",
       location: "Jl. Kebon Jeruk",
       description: "Restoran dengan masakan Indonesia autentik",
       rating: 4.8,
@@ -74,16 +75,18 @@ export default function RestaurantDetail() {
           name: "Paket VIP",
           price: 35000,
           description: "Lorem ipsum dolor sit amet",
-          imageUrl: "https://example.com/nasgor.jpg"
+          imageUrl:
+            "https://img.freepik.com/free-photo/restaurant-interior_1127-3392.jpg?t=st=1730819115~exp=1730822715~hmac=f4e3ec6e8237c53dd044912ddc8c71e5470fec1831abcac0ad52544c2400e8bf&w=826",
         },
         {
           id: 2,
           name: "Paket Reguler",
           price: 30000,
           description: "Lorem ipsum dolor sit amet",
-          imageUrl: "https://example.com/miegoreng.jpg"
-        }
-      ]
+          imageUrl:
+            "https://img.freepik.com/free-photo/ancient-chinise-room_1417-1692.jpg?t=st=1730819209~exp=1730822809~hmac=f340255c4511204b27b490ba2cddb7bdd42eba34db0187a7d4d5e9f5ff96f5e6&w=900",
+        },
+      ],
     },
     // Add more restaurant data here
   };
@@ -91,47 +94,50 @@ export default function RestaurantDetail() {
   const restaurant = restaurants[id as string];
 
   const handleQuantityChange = (menuItem: MenuItem, increment: boolean) => {
-    const existingItem = selectedMenu.find(item => item.id === menuItem.id);
+    const existingItem = selectedMenu.find((item) => item.id === menuItem.id);
 
     if (existingItem) {
       if (increment) {
-        setSelectedMenu(prev =>
-          prev.map(item =>
+        setSelectedMenu((prev) =>
+          prev.map((item) =>
             item.id === menuItem.id
               ? { ...item, quantity: item.quantity + 1 }
               : item
           )
         );
       } else if (existingItem.quantity > 0) {
-        setSelectedMenu(prev =>
-          prev.map(item =>
-            item.id === menuItem.id
-              ? { ...item, quantity: item.quantity - 1 }
-              : item
-          ).filter(item => item.quantity > 0)
+        setSelectedMenu((prev) =>
+          prev
+            .map((item) =>
+              item.id === menuItem.id
+                ? { ...item, quantity: item.quantity - 1 }
+                : item
+            )
+            .filter((item) => item.quantity > 0)
         );
       }
     } else if (increment) {
-      setSelectedMenu(prev => [...prev, { ...menuItem, quantity: 1 }]);
+      setSelectedMenu((prev) => [...prev, { ...menuItem, quantity: 1 }]);
     }
   };
 
   const calculateTotal = () => {
     return selectedMenu.reduce((total, item) => {
-      const price = isFlashSale === 'true' && restaurant.discount
-        ? item.price * (1 - parseInt(restaurant.discount) / 100)
-        : item.price;
-      return total + (price * item.quantity);
+      const price =
+        isFlashSale === "true" && restaurant.discount
+          ? item.price * (1 - parseInt(restaurant.discount) / 100)
+          : item.price;
+      return total + price * item.quantity;
     }, 0);
   };
 
-   const handleReservation = async () => {
+  const handleReservation = async () => {
     if (!name || !phone) {
-      Alert.alert('Peringatan', 'Silakan isi nama dan nomor telepon');
+      Alert.alert("Peringatan", "Silakan isi nama dan nomor telepon");
       return;
     }
     if (selectedMenu.length === 0) {
-      Alert.alert('Peringatan', 'Silakan pilih menu terlebih dahulu');
+      Alert.alert("Peringatan", "Silakan pilih menu terlebih dahulu");
       return;
     }
     const reservationData = {
@@ -147,13 +153,17 @@ export default function RestaurantDetail() {
     };
 
     try {
-      await AsyncStorage.setItem('reservation', JSON.stringify(reservationData));
+      await AsyncStorage.setItem(
+        "reservation",
+        JSON.stringify(reservationData)
+      );
+      Alert.alert("Sukses", "Reservasi berhasil disimpan");
       router.push({
         pathname: "/(tabs)/Order",
         params: reservationData,
       });
     } catch (error) {
-      Alert.alert('Error', 'Gagal menyimpan reservasi');
+      Alert.alert("Error", "Gagal menyimpan reservasi");
     }
 
     // Perbaikan format pathname
@@ -165,8 +175,8 @@ export default function RestaurantDetail() {
         location: restaurant.location,
         selectedMenu: JSON.stringify(selectedMenu),
         totalPrice: calculateTotal().toString(),
-        isFlashSale: isFlashSale
-      }
+        isFlashSale: isFlashSale,
+      },
     });
   };
 
@@ -200,7 +210,7 @@ export default function RestaurantDetail() {
           <View style={styles.headerContent}>
             <ThemedText type="title" style={styles.restaurantName}>
               {restaurant.name}
-              {isFlashSale === 'true' && restaurant.discount && (
+              {isFlashSale === "true" && restaurant.discount && (
                 <View style={styles.discountBadge}>
                   <ThemedText style={styles.discountText}>
                     {restaurant.discount} OFF
@@ -226,10 +236,12 @@ export default function RestaurantDetail() {
 
             <View style={styles.infoRow}>
               <ThemedText style={styles.timeText}>
-                <Ionicons name="time-outline" size={16} color="#888" /> {restaurant.openTime} - {restaurant.closeTime}
+                <Ionicons name="time-outline" size={16} color="#888" />{" "}
+                {restaurant.openTime} - {restaurant.closeTime}
               </ThemedText>
               <ThemedText style={styles.cuisineText}>
-                <Ionicons name="restaurant-outline" size={16} color="#888" /> {restaurant.cuisine}
+                <Ionicons name="restaurant-outline" size={16} color="#888" />{" "}
+                {restaurant.cuisine}
               </ThemedText>
             </View>
 
@@ -245,10 +257,13 @@ export default function RestaurantDetail() {
             </ThemedText>
 
             {restaurant.menu.map((item) => {
-              const menuItem = selectedMenu.find(selected => selected.id === item.id);
-              const itemPrice = isFlashSale === 'true' && restaurant.discount
-                ? item.price * (1 - parseInt(restaurant.discount) / 100)
-                : item.price;
+              const menuItem = selectedMenu.find(
+                (selected) => selected.id === item.id
+              );
+              const itemPrice =
+                isFlashSale === "true" && restaurant.discount
+                  ? item.price * (1 - parseInt(restaurant.discount) / 100)
+                  : item.price;
 
               return (
                 <View key={item.id} style={styles.menuItem}>
@@ -267,7 +282,7 @@ export default function RestaurantDetail() {
                       <ThemedText style={styles.menuPrice}>
                         Rp {itemPrice.toLocaleString()}
                       </ThemedText>
-                      {isFlashSale === 'true' && restaurant.discount && (
+                      {isFlashSale === "true" && restaurant.discount && (
                         <ThemedText style={styles.originalPrice}>
                           Rp {item.price.toLocaleString()}
                         </ThemedText>
@@ -309,34 +324,34 @@ export default function RestaurantDetail() {
           </View>
 
           <TextInput
-          style={styles.input}
-          placeholder="Nama"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nomor Telepon"
-          keyboardType="phone-pad"
-          value={phone}
-          onChangeText={setPhone}
-        />
-        <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-          <ThemedText style={styles.datePickerText}>
-            Waktu Reservasi: {reservationDate.toLocaleDateString()}
-          </ThemedText>
-        </TouchableOpacity>
-        {showDatePicker && (
-          <DateTimePicker
-            value={reservationDate}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowDatePicker(false);
-              if (date) setReservationDate(date);
-            }}
+            style={styles.input}
+            placeholder="Nama"
+            value={name}
+            onChangeText={setName}
           />
-        )}
+          <TextInput
+            style={styles.input}
+            placeholder="Nomor Telepon"
+            keyboardType="phone-pad"
+            value={phone}
+            onChangeText={setPhone}
+          />
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <ThemedText style={styles.datePickerText}>
+              Waktu Reservasi: {reservationDate.toLocaleDateString()}
+            </ThemedText>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={reservationDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowDatePicker(false);
+                if (date) setReservationDate(date);
+              }}
+            />
+          )}
 
           <TouchableOpacity
             style={styles.reservationButton}
@@ -357,83 +372,83 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     left: 16,
     zIndex: 1,
     padding: 8,
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   headerImage: {
     width: screenWidth,
     height: 200,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   content: {
     flex: 1,
   },
   headerContent: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   restaurantName: {
     fontSize: 24,
     marginBottom: 8,
-    fontWeight: 'bold',
-    flexDirection: 'row',
-    alignItems: 'center',
+    fontWeight: "bold",
+    flexDirection: "row",
+    alignItems: "center",
   },
   discountBadge: {
-    backgroundColor: '#FF4B4B',
+    backgroundColor: "#FF4B4B",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
     marginLeft: 8,
   },
   discountText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
     gap: 16,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   ratingText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   locationText: {
     marginLeft: 4,
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   timeText: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   cuisineText: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
   description: {
     marginTop: 8,
-    color: '#666',
+    color: "#666",
     lineHeight: 20,
   },
   menuSection: {
@@ -442,16 +457,16 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 20,
     marginBottom: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   menuItem: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 12,
     marginBottom: 16,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -468,96 +483,96 @@ const styles = StyleSheet.create({
   menuName: {
     fontSize: 16,
     marginBottom: 4,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   menuDescription: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
     marginBottom: 8,
   },
   priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   menuPrice: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   originalPrice: {
     fontSize: 14,
-    color: '#999',
-    textDecorationLine: 'line-through',
+    color: "#999",
+    textDecorationLine: "line-through",
   },
   quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 8,
     gap: 12,
   },
   quantityButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     borderRadius: 20,
     width: 28,
     height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   quantityText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     minWidth: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   bottomBar: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 16,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    flexDirection: "column",
+    justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: "#eee",
   },
-  totalContainer: { 
-    marginBottom: 16 
+  totalContainer: {
+    marginBottom: 16,
   },
-  totalText: { 
-    fontSize: 14, 
-    color: '#666' 
+  totalText: {
+    fontSize: 14,
+    color: "#666",
   },
-  totalPrice: { 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#333' 
+  totalPrice: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
-    color: '#333',
+    color: "#333",
   },
-  datePickerText: { 
+  datePickerText: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 10,
-    fontSize: 16, 
-    color: '#333', 
-    marginBottom: 24 
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 24,
   },
   reservationButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center'
+    alignItems: "center",
+    justifyContent: "center",
   },
   reservationButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
