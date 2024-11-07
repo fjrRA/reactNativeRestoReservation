@@ -303,6 +303,8 @@ export default function Pesanan() {
   );
 }
 
+// Styling
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
