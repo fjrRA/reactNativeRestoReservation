@@ -20,7 +20,7 @@ import { router } from "expo-router";
 const screenWidth = Dimensions.get("window").width;
 
 interface FlashSale {
-  id: number;
+  id: string;
   name: string;
   discount: string;
   imageUrl: string;
@@ -29,18 +29,18 @@ interface FlashSale {
 }
 
 interface Restaurant {
-  id: number;
+  id: string;
   name: string;
-  imageUrl: string;
-  location: string;
+  description: string;
+  pictureId: string;
+  city: string;
   rating?: number;
 }
 
 export default function ProductScreen() {
-  // Data Flash Sale
   const [flashSales, setFlashSales] = useState<FlashSale[]>([
     {
-      id: 1,
+      id: "1",
       name: "Resto A",
       discount: "50%",
       imageUrl:
@@ -48,75 +48,33 @@ export default function ProductScreen() {
       description: "Restoran dengan masakan Indonesia autentik",
       location: "Jl. Kebon Jeruk",
     },
-    {
-      id: 2,
-      name: "Resto B",
-      discount: "40%",
-      imageUrl: "https://example.com/restaurant2.png",
-      description: "Restoran Jepang Modern",
-      location: "Jl. Asia Afrika",
-    },
-    {
-      id: 3,
-      name: "Resto C",
-      discount: "30%",
-      imageUrl: "https://example.com/restaurant3.png",
-      description: "Italian Restaurant",
-      location: "Jl. Braga",
-    },
-    {
-      id: 4,
-      name: "Resto D",
-      discount: "20%",
-      imageUrl: "https://example.com/restaurant4.png",
-      description: "Korean BBQ",
-      location: "Jl. Dago",
-    },
-    {
-      id: 5,
-      name: "Resto E",
-      discount: "10%",
-      imageUrl: "https://example.com/restaurant5.png",
-      description: "Chinese Food",
-      location: "Jl. Pasir Kaliki",
-    },
   ]);
-
-  // Data Restaurant Regular
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([
-    {
-      id: 6,
-      name: "Resto F",
-      imageUrl:
-        "https://img.freepik.com/free-photo/restaurant-hall-with-lots-table_140725-6309.jpg",
-      location: "Jl. Kebon Jeruk",
-      rating: 4.5,
-    },
-    {
-      id: 7,
-      name: "Resto G",
-      imageUrl: "https://example.com/restaurant6.png",
-      location: "Jl. Melati",
-      rating: 4.2,
-    },
-    {
-      id: 8,
-      name: "Resto H",
-      imageUrl: "https://example.com/restaurant7.png",
-      location: "Jl. Mawar",
-      rating: 4.7,
-    },
-  ]);
-
-  // State untuk search dan filter
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // State untuk countdown flash sale
+  const [isLoading, setIsLoading] = useState(true);
   const [countdown, setCountdown] = useState(3600); // 1 hour in seconds
 
-  // Effect untuk countdown
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(
+          "https://restaurant-api.dicoding.dev/list"
+        );
+        const data = await response.json();
+        setRestaurants(data.restaurants);
+        setFilteredRestaurants(data.restaurants);
+      } catch (error) {
+        console.error("Error fetching restaurants:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRestaurants();
+  }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown((prevCountdown) =>
@@ -127,12 +85,18 @@ export default function ProductScreen() {
     return () => clearInterval(timer);
   }, []);
 
-  // Handler untuk navigasi ke detail restoran
-  const handleRestaurantPress = (id: number) => {
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const filteredData = restaurants.filter((restaurant) =>
+      restaurant.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredRestaurants(filteredData);
+  };
+
+  const handleRestaurantPress = (id: string) => {
     router.push(`../restaurant/${id}`);
   };
 
-  // Format waktu untuk countdown
   const formatTime = (seconds: number): string => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -142,19 +106,10 @@ export default function ProductScreen() {
       .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Handler untuk pencarian
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    const filteredData = restaurants.filter((restaurant) =>
-      restaurant.name.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredRestaurants(filteredData);
-  };
-
   if (isLoading) {
     return (
       <ThemedView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#ffffff" />
+        <ActivityIndicator size="large" color="#000" />
       </ThemedView>
     );
   }
@@ -162,7 +117,6 @@ export default function ProductScreen() {
   return (
     <ThemedView style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
-        {/* Search Bar */}
         <TextInput
           style={styles.searchInput}
           placeholder="Cari restoran..."
@@ -170,20 +124,16 @@ export default function ProductScreen() {
           value={searchQuery}
           onChangeText={handleSearch}
         />
-
-        {/* Flash Sale Section */}
         <View style={styles.flashSaleHeader}>
           <ThemedText type="title" style={styles.sectionTitle}>
             Flash Sale Restoran
           </ThemedText>
           <Text style={styles.countdownText}>{formatTime(countdown)}</Text>
         </View>
-
-        {/* Flash Sale List dengan FlatList */}
         <FlatList
           horizontal
           data={flashSales}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.flashSaleItem}
@@ -208,12 +158,9 @@ export default function ProductScreen() {
           contentContainerStyle={styles.flashSaleRow}
           showsHorizontalScrollIndicator={false}
         />
-
-        {/* Regular Restaurant Section */}
         <ThemedText type="title" style={styles.sectionTitle}>
           Daftar Restoran
         </ThemedText>
-
         <View style={styles.productList}>
           {filteredRestaurants.map((restaurant) => (
             <TouchableOpacity
@@ -222,7 +169,9 @@ export default function ProductScreen() {
               onPress={() => handleRestaurantPress(restaurant.id)}
             >
               <Image
-                source={{ uri: restaurant.imageUrl }}
+                source={{
+                  uri: `https://restaurant-api.dicoding.dev/images/medium/${restaurant.pictureId}`,
+                }}
                 style={styles.productImage}
               />
               <View style={styles.productInfo}>
@@ -236,8 +185,12 @@ export default function ProductScreen() {
                     color="#888"
                     style={styles.locationIcon}
                   />
-                  <ThemedText style={styles.locationText}>
-                    {restaurant.location}
+                  <ThemedText
+                    style={styles.locationText}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {restaurant.city}
                   </ThemedText>
                 </View>
                 {restaurant.rating && (
@@ -294,7 +247,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   countdownText: {
-    color: "#ffffff",
+    color: "#000",
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -331,7 +284,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   discountContainer: {
-    color: "#888",
     flexDirection: "row",
     alignItems: "center",
   },
@@ -374,14 +326,16 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
+    maxWidth: "100%",
   },
   locationIcon: {
     marginRight: 4,
   },
   locationText: {
-    color: "#888",
+    flex: 1,
+    flexWrap: "wrap",
     fontSize: 14,
+    color: "#888",
   },
   ratingContainer: {
     flexDirection: "row",
@@ -389,8 +343,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   ratingText: {
+    color: "#FFD700",
     marginLeft: 4,
-    color: "#666",
-    fontSize: 14,
   },
 });
