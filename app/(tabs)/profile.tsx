@@ -57,61 +57,61 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView>
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.title}>Profile</Text>
+      <View style={styles.container}>
+        <View style={styles.form}>
+          <Text style={styles.title}>Profile</Text>
 
-        <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
-          <Image
-            source={
-              profileImage
-                ? { uri: profileImage }
-                : require("../../assets/images/profile.jpeg")
-            }
-            style={styles.profileImage}
+          <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
+            <Image
+              source={
+                profileImage
+                  ? { uri: profileImage }
+                  : require("../../assets/images/profile.jpeg")
+              }
+              style={styles.profileImage}
+            />
+            <Text style={styles.changePhotoText}>Change Photo</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="Enter your name"
           />
-          <Text style={styles.changePhotoText}>Change Photo</Text>
-        </TouchableOpacity>
 
-        <Text style={styles.label}>Name</Text>
-        <TextInput
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-          placeholder="Enter your name"
-        />
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            keyboardType="email-address"
+          />
 
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Enter your email"
-          keyboardType="email-address"
-        />
+          <Text style={styles.label}>Phone Number</Text>
+          <TextInput
+            style={styles.input}
+            value={phone}
+            onChangeText={setPhone}
+            placeholder="Enter your phone number"
+            keyboardType="phone-pad"
+          />
 
-        <Text style={styles.label}>Phone Number</Text>
-        <TextInput
-          style={styles.input}
-          value={phone}
-          onChangeText={setPhone}
-          placeholder="Enter your phone number"
-          keyboardType="phone-pad"
-        />
-
-        <TouchableOpacity
-          style={styles.saveButton}
-          onPress={handleSave}
-          disabled={isSaving} // Disable button saat sedang menyimpan
-        >
-          {isSaving ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text style={styles.saveButtonText}>Save</Text>
-          )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleSave}
+            disabled={isSaving} // Disable button saat sedang menyimpan
+          >
+            {isSaving ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text style={styles.saveButtonText}>Save</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
     </ScrollView>
   );
 };
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#f2f2f7",
+    marginTop: 72,
   },
   title: {
     fontSize: 26,

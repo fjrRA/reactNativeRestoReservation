@@ -88,6 +88,10 @@ export default function HomeScreen() {
   };
   const [remainingTime, setRemainingTime] = useState(3600); // Contoh countdown 1 jam
 
+  const handleRestaurantPressApi = (id: string) => {
+    router.push(`/restaurant/id-resto?id=${id}`);
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
@@ -197,7 +201,7 @@ export default function HomeScreen() {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.productGridItem}
-                  onPress={() => handleRestaurantPress(item.id)}
+                  onPress={() => handleRestaurantPressApi(item.id)}
                 >
                   <Image
                     source={{
@@ -213,29 +217,27 @@ export default function HomeScreen() {
                     >
                       {item.name}
                     </ThemedText>
-                    <View style={styles.locationContainer}>
-                      <Ionicons
-                        name="location-outline"
-                        size={16}
-                        color="#888"
-                        style={styles.locationIcon}
-                      />
-                      <ThemedText
-                        style={styles.locationText}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {item.city}
-                      </ThemedText>
-                    </View>
-                    {item.rating && (
-                      <View style={styles.ratingContainer}>
-                        <Ionicons name="star" size={16} color="#FFD700" />
-                        <ThemedText style={styles.ratingText}>
-                          {item.rating.toFixed(1)}
+                    <View style={styles.locationAndRating}>
+                      <View style={styles.locationContainer}>
+                        <Ionicons
+                          name="location-outline"
+                          size={16}
+                          color="#888"
+                          style={styles.locationIcon}
+                        />
+                        <ThemedText style={styles.locationText}>
+                          {item.city}
                         </ThemedText>
                       </View>
-                    )}
+                      {item.rating && (
+                        <View style={styles.ratingContainer}>
+                          <Ionicons name="star" size={16} color="#FFD700" />
+                          <ThemedText style={styles.ratingText}>
+                            {item.rating.toFixed(1)}
+                          </ThemedText>
+                        </View>
+                      )}
+                    </View>
                   </View>
                 </TouchableOpacity>
               )}
@@ -346,6 +348,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#1a1a1a",
   },
+  locationAndRating: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: 100,
+  },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -368,5 +375,6 @@ const styles = StyleSheet.create({
   ratingText: {
     color: "#FFD700",
     marginLeft: 4,
+    fontSize: 14,
   },
 });

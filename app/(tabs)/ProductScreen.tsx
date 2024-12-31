@@ -97,6 +97,10 @@ export default function ProductScreen() {
     router.push(`../restaurant/${id}`);
   };
 
+  const handleRestaurantPressApi = (id: string) => {
+    router.push(`/restaurant/id-resto?id=${id}`);
+  };
+
   const formatTime = (seconds: number): string => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -166,7 +170,7 @@ export default function ProductScreen() {
             <TouchableOpacity
               key={restaurant.id}
               style={styles.productItem}
-              onPress={() => handleRestaurantPress(restaurant.id)}
+              onPress={() => handleRestaurantPressApi(restaurant.id)}
             >
               <Image
                 source={{
@@ -178,29 +182,27 @@ export default function ProductScreen() {
                 <ThemedText type="subtitle" style={styles.restaurantName}>
                   {restaurant.name}
                 </ThemedText>
-                <View style={styles.locationContainer}>
-                  <Ionicons
-                    name="location-outline"
-                    size={16}
-                    color="#888"
-                    style={styles.locationIcon}
-                  />
-                  <ThemedText
-                    style={styles.locationText}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {restaurant.city}
-                  </ThemedText>
-                </View>
-                {restaurant.rating && (
-                  <View style={styles.ratingContainer}>
-                    <Ionicons name="star" size={16} color="#FFD700" />
-                    <ThemedText style={styles.ratingText}>
-                      {restaurant.rating.toFixed(1)}
+                <View style={styles.locationAndRating}>
+                  <View style={styles.locationContainer}>
+                    <Ionicons
+                      name="location-outline"
+                      size={16}
+                      color="#888"
+                      style={styles.locationIcon}
+                    />
+                    <ThemedText style={styles.locationText}>
+                      {restaurant.city}
                     </ThemedText>
                   </View>
-                )}
+                  {restaurant.rating && (
+                    <View style={styles.ratingContainer}>
+                      <Ionicons name="star" size={16} color="#FFD700" />
+                      <ThemedText style={styles.ratingText}>
+                        {restaurant.rating.toFixed(1)}
+                      </ThemedText>
+                    </View>
+                  )}
+                </View>
               </View>
             </TouchableOpacity>
           ))}
@@ -323,6 +325,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     color: "#333",
   },
+  locationAndRating: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: 200,
+  },
   locationContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -345,5 +352,6 @@ const styles = StyleSheet.create({
   ratingText: {
     color: "#FFD700",
     marginLeft: 4,
+    fontSize: 14,
   },
 });
