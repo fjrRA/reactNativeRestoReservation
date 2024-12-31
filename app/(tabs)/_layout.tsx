@@ -21,6 +21,8 @@ const layout = () => {
           component={HomeScreen}
           options={{
             tabBarLabel: "Home",
+            tabBarActiveTintColor: "#ff6f00", // Warna ikon/teks saat aktif,
+            tabBarInactiveTintColor: "#5E686D", // Warna ikon/teks saat tidak aktif,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="home-outline" size={size} color={color} />
             ),
@@ -31,7 +33,9 @@ const layout = () => {
           name="Product"
           component={ProductScreen}
           options={{
-            tabBarLabel: "Product",
+            tabBarLabel: "Produk",
+            tabBarActiveTintColor: "#ff6f00", // Warna ikon/teks saat aktif,
+            tabBarInactiveTintColor: "#5E686D", // Warna ikon/teks saat tidak aktif,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="bag-handle-outline" size={size} color={color} />
             ),
@@ -42,6 +46,8 @@ const layout = () => {
           component={PesananScreen}
           options={{
             tabBarLabel: "Pesanan",
+            tabBarActiveTintColor: "#ff6f00", // Warna ikon/teks saat aktif,
+            tabBarInactiveTintColor: "#5E686D", // Warna ikon/teks saat tidak aktif,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="cart-outline" size={size} color={color} />
             ),
@@ -52,9 +58,12 @@ const layout = () => {
           component={ProfileScreen}
           options={{
             tabBarLabel: "Profile",
+            tabBarActiveTintColor: "#ff6f00", // Warna ikon/teks saat aktif,
+            tabBarInactiveTintColor: "#5E686D", // Warna ikon/teks saat tidak aktif,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="person-outline" size={size} color={color} />
             ),
+            headerShown: false,
           }}
         />
       </Tab.Navigator>
